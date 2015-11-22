@@ -133,7 +133,7 @@ function commerce_checkout_redirect_commerce_checkout_router($order, $checkout_p
     if (($checkout_page['page_id'] == $first_checkout_page)) {
       if (user_is_anonymous() && empty($_SESSION['commerce_checkout_redirect_bypass'])) {
         $_SESSION['commerce_checkout_redirect_anonymous'] = TRUE;
-        // $commerce_checkout_redirect_message = variable_get('commerce_checkout_redirect_message', t('You need to be logged in to be able to checkout.')); 
+        // $commerce_checkout_redirect_message = variable_get('commerce_checkout_redirect_message', t('You need to be logged in to be able to checkout.'));
         // if (!empty($commerce_checkout_redirect_message)) {
         //   drupal_set_message($commerce_checkout_redirect_message);
         // }
@@ -194,8 +194,8 @@ function commerce_checkout_redirect_user_login(&$edit, &$account) {
  * Implements hook_form_alter().
  */
 function commerce_checkout_redirect_form_alter(&$form, &$form_state, $form_id) {
-   dpm($form_id);
-    dpm($form);
+   // dpm($form_id);
+    // dpm($form);
 
   $commerce_checkout_redirect_anonymous = variable_get('commerce_checkout_redirect_anonymous', FALSE);
   // Check if user has an active cart order.
@@ -207,11 +207,11 @@ function commerce_checkout_redirect_form_alter(&$form, &$form_state, $form_id) {
         $form['#submit'][] = 'commerce_checkout_redirect_redirect_anonymous_submit';
         unset($form['#action']);
 
-         $commerce_checkout_redirect_message = variable_get('commerce_checkout_redirect_message', t('You need to be logged in to be able to checkout.')); 
+         $commerce_checkout_redirect_message = variable_get('commerce_checkout_redirect_message', t('You need to be logged in to be able to checkout.'));
         if (!empty($commerce_checkout_redirect_message)) {
-          $form['#prefix'] = '<div class="login-requied-message">'. $commerce_checkout_redirect_message . '</div>';
+          $form['#prefix'] = '<div class="login-required-message">'. filter_xss($commerce_checkout_redirect_message, array('a', 'em', 'strong', 'ul', 'ol', 'li', 'h2', 'h3', 'p')) . '</div>';
         }
-        
+
         // Anonymous checkout button.
         if (variable_get('commerce_checkout_redirect_anonymous', FALSE)) {
           $form_state['#order'] = $order;
@@ -269,7 +269,7 @@ function commerce_checkout_redirect_form_alter(&$form, &$form_state, $form_id) {
         // Provide the checkout as an alternative to the new account
         // reset password process.
         // Message (help text) for the "Continue with checkout" button.
-        $checkout_redirect_reset_password_message = variable_get('commerce_checkout_redirect_reset_password_message', t('You can also continue with the checkout process.')); 
+        $checkout_redirect_reset_password_message = variable_get('commerce_checkout_redirect_reset_password_message', t('You can also continue with the checkout process.'));
         if (!empty($checkout_redirect_reset_password_message)) {
           $form['actions']['checkout_message']['#markup'] = '<p>' . $checkout_redirect_reset_password_message . '</p>';
         }
@@ -399,16 +399,16 @@ function commerce_checkout_redirect_items_in_cart(){
   // and if it is not empty.
   if ($order = commerce_cart_order_load($user->uid)) {
     $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-    dpm($order_wrapper);
-    
+    // dpm($order_wrapper);
+
     // Get the product type set in the Admin UI.
-    $product_type = variable_get('commerce_checkout_redirect_product_type');
+    $product_type = check_plain(variable_get('commerce_checkout_redirect_product_type'));
     $product_type_check = variable_get('commerce_checkout_redirect_product_check');
 
     // If there is a product type then we want to check the cart for that type.
-    if (isset($product_type_check) && isset($product_type)) { 
+    if (isset($product_type_check) && isset($product_type)) {
       foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
-        $type = $line_item_wrapper->commerce_product->value()->type;   
+        $type = $line_item_wrapper->commerce_product->value()->type;
         if($type==$product_type){
           return TRUE;
         }
@@ -418,21 +418,8 @@ function commerce_checkout_redirect_items_in_cart(){
       if (commerce_line_items_quantity($order_wrapper->commerce_line_items, commerce_product_line_item_types()) > 0)  {
         return TRUE;
       }
-    } 
+    }
   }
 
   return FALSE;
 }
-
-
-// function commerce_checkout_redirect_form_alter(&$form, &$form_state, $form_id) {
-
-//     dpm($form_id);
-//     dpm($form);
-
-
-
-// }
-
-
- 
